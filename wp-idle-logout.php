@@ -2,7 +2,7 @@
 /*
 	Plugin Name: Idle Logout
 	Description: Automatically logs out inactive users.
-	Version: 1.0.2
+	Version: 1.2
 	Author: Cooper Dukes @INNEO
 	Author URI: http://inneosg.com/
 	License: GPL2
@@ -117,7 +117,12 @@ class WP_Idle_Logout {
 
 			if ( is_numeric($time) ) {
 				if ( (int) $time + $this->get_idle_time_setting() < time() ) {
-					wp_redirect( wp_login_url() . '?idle=1' );
+					$redirect_url =  wp_login_url();
+
+					if ( function_exists( 'wc_get_page_id' ) ) &&  ( 'woo' == get_option(self::ID . '_idle_login_screen')) 
+						$redirect_url = wp_redirect( get_permalink( wc_get_page_id( 'myaccount' ) ) );
+
+					wp_redirect( $redirect_url . '?idle=1' );
 					wp_logout();
 					$this->clear_activity_meta( $user_id );
 					exit;
@@ -234,6 +239,20 @@ class WP_Idle_Logout {
 			self::ID . '_idle_message',
 			'wp_kses_post'
 		);
+		add_option( self::ID . '_idle_login_screen' );
+
+		add_settings_field(
+			self::ID . '_idle_login_screen',
+			'Idle Message',
+			array(&$this, 'render_idle_login_screen_option'),
+			self::ID . '_options',
+			self::ID . '_options_section'
+		);
+
+		register_setting(
+			self::ID . '_options',
+			self::ID . '_idle_login_screen',
+		);
 	}
 
 	/**
@@ -254,6 +273,16 @@ class WP_Idle_Logout {
 	public function render_idle_message_option() {
 		echo '<textarea name="' . self::ID . '_idle_message" class="regular-text" rows="5" cols="50">' . get_option(self::ID . '_idle_message') . ' </textarea>';
 		echo '<p class="description">Overrides the default message shown to idle users when redirected to the login screen.</p>';
+	}
+	/**
+	 * Admin options
+	 * Render idle message option field
+	 *
+	 */
+	public function render_idle_login_screen_option() {
+		$login_screen = get_option(self::ID . '_idle_login_screen');
+		echo '<input select name="' . self::ID . '_idle_login_screen"><option value="wp"' . selected( $login_screen, 'wp' ) .  '>Regular WP Login Screen</option><option value="woo"' . selected( $login_screen, 'woo' ) .  '>WooCommerce My Account Screen</option></select>';
+		echo '<p class="description">Which login screen should idle users be redirected to.</p>';
 	}
 }
 
