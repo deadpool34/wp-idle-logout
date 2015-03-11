@@ -117,9 +117,9 @@ class WP_Idle_Logout {
 
 			if ( is_numeric($time) ) {
 				if ( (int) $time + $this->get_idle_time_setting() < time() ) {
-					$redirect_url =  wp_login_url();
+					$redirect_url = wp_login_url();
 
-					if ( function_exists( 'wc_get_page_id' ) ) &&  ( 'woo' == get_option(self::ID . '_idle_login_screen')) 
+					if ( function_exists( 'wc_get_page_id' ) &&  'woo' == get_option(self::ID . '_idle_login_screen' ) ) 
 						$redirect_url = wp_redirect( get_permalink( wc_get_page_id( 'myaccount' ) ) );
 
 					wp_redirect( $redirect_url . '?idle=1' );
@@ -243,7 +243,7 @@ class WP_Idle_Logout {
 
 		add_settings_field(
 			self::ID . '_idle_login_screen',
-			'Idle Message',
+			'Login screen',
 			array(&$this, 'render_idle_login_screen_option'),
 			self::ID . '_options',
 			self::ID . '_options_section'
@@ -251,7 +251,7 @@ class WP_Idle_Logout {
 
 		register_setting(
 			self::ID . '_options',
-			self::ID . '_idle_login_screen',
+			self::ID . '_idle_login_screen'
 		);
 	}
 
@@ -281,8 +281,12 @@ class WP_Idle_Logout {
 	 */
 	public function render_idle_login_screen_option() {
 		$login_screen = get_option(self::ID . '_idle_login_screen');
-		echo '<input select name="' . self::ID . '_idle_login_screen"><option value="wp"' . selected( $login_screen, 'wp' ) .  '>Regular WP Login Screen</option><option value="woo"' . selected( $login_screen, 'woo' ) .  '>WooCommerce My Account Screen</option></select>';
-		echo '<p class="description">Which login screen should idle users be redirected to.</p>';
+		echo '
+			<select name="' . self::ID . '_idle_login_screen">
+				<option value="wp"'  . selected( $login_screen, 'wp',  false ) . '>Regular WP Login Screen</option>
+				<option value="woo"' . selected( $login_screen, 'woo', false ) . '>WooCommerce My Account Screen</option>
+			</select>
+			<p class="description">Which login screen should idle users be redirected to.</p>';
 	}
 }
 
