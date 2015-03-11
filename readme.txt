@@ -1,6 +1,6 @@
 === WP Idle Logout ===
-Contributors: cdukes
-Tags: idle, logout, inactive, autologout, auto-logout, security
+Contributors: cdukes, Gabriel Reguly
+Tags: idle, logout, inactive, autologout, auto-logout, security, time-out
 Requires at least: 3.5
 Tested up to: 4.1.1
 Stable tag: 1.2
